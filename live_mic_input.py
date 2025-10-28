@@ -6,12 +6,10 @@ import numpy as np
 import numpy as np
 import matplotlib.pyplot as plt
 
-duration = 10
-fs = 44100  # Sample rate - captures 44100 samples per second
-myrecording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
-sd.wait()
-print(myrecording)
-
+def record_mic_input(duration, fs):
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
+    sd.wait()
+    return recording
 
 def plot_signal(signal):
     plt.rcParams.update({'font.size': 20})
@@ -24,15 +22,12 @@ def plot_signal(signal):
     plt.show()
 
 def main():
-    frequency = 440  # Hz (A4 note)
     sample_rate = 44100  # samples per second
     length_seconds = 5  # duration in seconds
 
-    time = np.arange(length_seconds * sample_rate) / sample_rate
-    sine = np.sin(2 * np.pi * frequency * time)
+    recording = record_mic_input(length_seconds, sample_rate)
 
-    # Plot the first 1000 samples for clarity
-    plot_signal(sine[:1000])
+    plot_signal(recording)
 
 if __name__ == '__main__':
     main()
