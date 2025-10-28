@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def record_mic_input(duration, fs):
-    recording = sd.rec(int(duration * fs), samplerate=fs, channels=2)
+    recording = sd.rec(int(duration * fs), samplerate=fs, channels=1)
     sd.wait()
     return recording
 
