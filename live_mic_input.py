@@ -2,8 +2,6 @@
 
 import sounddevice as sd
 import numpy as np
-
-import numpy as np
 import matplotlib.pyplot as plt
 
 def record_mic_input(duration, fs):
