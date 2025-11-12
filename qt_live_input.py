@@ -234,7 +234,7 @@ class AudioVisualizer(QMainWindow):
         self.startButton.clicked.connect(self.toggle_audio)
         self.vizCombo.currentTextChanged.connect(self.viz_manager.setup)
         self.sensitivitySlider.valueChanged.connect(self.update_sensitivity)
-        # self.axesButton.clicked.connect(self.toggle_axes)
+        self.axesButton.clicked.connect(self.toggle_axes)
     
     def toggle_audio(self):
         """Toggle audio stream on/off"""
@@ -243,14 +243,14 @@ class AudioVisualizer(QMainWindow):
         else:
             self.start_audio()
     
-    # def toggle_axes(self):
-    #     self.axes_shown = not self.axes_shown
-    #     plot_item = self.plot_widget.getPlotItem()
-    #     if not plot_item:
-    #         return False
-    #     plot_item.showAxis('bottom', show=self.axes_shown)
-    #     plot_item.showAxis('left', show=self.axes_shown)
-    #     return True
+    def toggle_axes(self):
+        self.axes_shown = not self.axes_shown
+        plot_item = self.plot_widget.getPlotItem()
+        if not plot_item:
+            return False
+        plot_item.showAxis('bottom', show=self.axes_shown)
+        plot_item.showAxis('left', show=self.axes_shown)
+        return True
     
     def start_audio(self):
         """Start audio capture"""
