@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import sounddevice as sd
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QWidget, QSizePolicy
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.uic import loadUi
 import pyqtgraph as pg
@@ -13,29 +13,39 @@ class AudioVisualizer(QMainWindow):
         super().__init__()
         self.setWindowTitle("Real-Time Sound Visualizer")
 
-        # self.button = QPushButton("Click here", self)
-        # self.button.setStyleSheet("font-size: 30px;")
-        # self.button.setGeometry(150, 200, 200, 100)
-        # self.button.clicked.connect(self.on_click)
+        # Load UI
+        loadUi("main_window.ui", self)
+        
+        # Set the row stretch factors
+        # self.gridLayout.setRowStretch(0, 1)
+        # self.gridLayout.setRowStretch(1, 1)
+
+        self.startButton.clicked.connect(self.on_click)
+        self.stopButton.clicked.connect(self.on_click_b)
         
         # Setup plot
         self.plot_widget = pg.PlotWidget()
+        # self.gridLayout.addWidget(self.plot_widget, 0, 0)  # Add to the first row (0), first column (0)
+        # self.display_widget.deleteLater()  # Remove the placeholder display widget
         self.init_plot()
 
         self.timer = QTimer()
-        self.start_timer()
-
-        # Load UI
-        # loadUi("mainui.ui", self)
+        
 
     def init_plot(self):
         self.plot_widget.setYRange(-0.5, 0.5)
         self.plot_widget.setXRange(0, chunk)
-        self.setCentralWidget(self.plot_widget)
+        # Disable mouse interactions
+        self.plot_widget.setMouseEnabled(x=False, y=False)  # Disable mouse panning
+        self.plot_widget.getViewBox().setMenuEnabled(False)  # Disable right-click menu
+        self.plot_widget.hideButtons()  # Hide auto-scale button
+        
         self.plot = self.plot_widget.plot(pen='y')
         self.data = np.zeros(chunk)
 
-    def start_timer(self):
+        self.gridLayout.addWidget(self.plot_widget, 0, 0)
+
+    def start_audio_stream(self):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start(20)
 
@@ -45,6 +55,15 @@ class AudioVisualizer(QMainWindow):
 
     def on_click(self):
         print("Button clicked!")
+        # self.setCentralWidget(self.plot_widget)
+        self.start_audio_stream()
+
+    def on_click_b(self):
+        # self.setCentralWidget(self.gridLayoutWidget)
+        self.stream.stop()
+
+    def keyPressEvent(self, event):
+        pass
 
     def audio_callback(self, indata, frames, time, status):
         self.data = np.squeeze(indata)
