@@ -1,9 +1,9 @@
 import sys
 import numpy as np
 import sounddevice as sd
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QTimer, QFile, QTextStream
-from PyQt5.uic import loadUi
+from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtCore import QTimer, QFile, QTextStream
+from PyQt6.uic import loadUi
 import pyqtgraph as pg
 
 # TODO:
@@ -293,7 +293,7 @@ def main():
     app = QApplication(sys.argv)
     window = AudioVisualizer()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':
