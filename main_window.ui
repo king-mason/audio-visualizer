@@ -11,16 +11,17 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Audio Visualizer Pro</string>
+   <string>Python Audio Visualizer</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
-    background-color: #0f0f1e;
+    background-color: rgba(45, 40, 67, 1);
 }
 
 QWidget {
     color: white;
-    font-family: Arial;
+    font-family: &quot;Segoe UI&quot;, &quot;San Francisco&quot;, &quot;Inter&quot;, &quot;Roboto&quot;, &quot;Helvetica Neue&quot;, Arial, sans-serif;
+    font-size: 11pt;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -45,13 +46,13 @@ QWidget {
       <item>
        <widget class="QLabel" name="titleLabel">
         <property name="styleSheet">
-         <string notr="true">color: rgb(12, 101, 211); 
-            font-size: 18pt; 
-            font-weight: bold; 
-            padding: 10px;</string>
+         <string notr="true">color: rgb(0, 0, 0); 
+font-size: 24pt; 
+font-weight: bold;
+padding: 10px;</string>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#007aff;&quot;&gt;AUDIO VISUALIZER PYTHON&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ecf5f7;&quot;&gt;Python Audio Visualizer&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -193,15 +194,6 @@ QWidget {
                 padding: 8px;
                 font-weight: bold;
             }
-            QComboBox::drop-down {
-                border: none;
-            }
-            QComboBox::down-arrow {
-                image: none;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #00d4ff;
-            }
             QComboBox QAbstractItemView {
                 background-color: #0f3460;
                 color: white;
@@ -231,6 +223,11 @@ QWidget {
            <item>
             <property name="text">
              <string>Stereo Bars</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Audio Stream</string>
             </property>
            </item>
           </widget>
@@ -348,20 +345,72 @@ QWidget {
        <item>
         <layout class="QHBoxLayout" name="bottomControlRow">
          <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QPushButton" name="loadButton">
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+                background-color: #0f3460;
+                color: white;
+                border: 2px solid #00d4ff;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #00b8d4;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: #0097a7;
+                color: black;
+            }</string>
            </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
+           <property name="text">
+            <string>Load Audio File</string>
            </property>
-           <property name="sizeHint" stdset="0">
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="loadLabel">
+           <property name="minimumSize">
             <size>
-             <width>150</width>
-             <height>20</height>
+             <width>100</width>
+             <height>0</height>
             </size>
            </property>
-          </spacer>
+           <property name="lineWidth">
+            <number>1</number>
+           </property>
+           <property name="text">
+            <string>Live input mode</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="liveInputButton">
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+                background-color: #0f3460;
+                color: white;
+                border: 2px solid #00d4ff;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #00b8d4;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: #0097a7;
+                color: black;
+            }</string>
+           </property>
+           <property name="text">
+            <string>Live input mode</string>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="buttonSpacer1">
@@ -425,7 +474,42 @@ QWidget {
           </spacer>
          </item>
          <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>100</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QPushButton" name="axesButton">
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+                background-color: #0f3460;
+                color: white;
+                border: 2px solid #00d4ff;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #00b8d4;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: #0097a7;
+                color: black;
+            }</string>
+           </property>
            <property name="text">
             <string>Show/Hide Axes</string>
            </property>
