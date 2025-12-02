@@ -1,6 +1,6 @@
 import sys
 import librosa
-import librosa.display
+#import librosa.display
 import numpy as np
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
                               QWidget, QPushButton, QFileDialog, QLabel, QGroupBox)
