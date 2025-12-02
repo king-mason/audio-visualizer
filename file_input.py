@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+FONTSIZE = 8
+
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=8, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -59,9 +61,10 @@ class AudioFeatureExtractor():
         ax = self.waveform_canvas.fig.add_subplot(111)
         times = np.arange(len(y)) / sr
         ax.plot(times, y, linewidth=0.5, alpha=0.7, color='blue')
-        ax.set_xlabel('Time (s)')
-        ax.set_ylabel('Volume')
-        ax.set_title('Volume over Time')
+        ax.set_xlabel('Time (s)', fontsize=FONTSIZE)
+        ax.set_ylabel('Volume', fontsize=FONTSIZE)
+        ax.set_title('Volume over Time', fontsize=FONTSIZE)
+        ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
         ax.grid(True, alpha=0.3)
         self.waveform_canvas.fig.tight_layout()
         self.waveform_canvas.draw()
@@ -73,11 +76,12 @@ class AudioFeatureExtractor():
         t = librosa.frames_to_time(frames, sr=sr)
         ax2 = ax.twinx()
         ax2.plot(t, spectral_centroids, color='red', linewidth=2, label='Spectral Centroid')
-        ax2.set_ylabel('Frequency (Hz)', color='red')
-        ax2.tick_params(axis='y', labelcolor='red')
-        ax.set_xlabel('Time (s)')
-        ax.set_ylabel('Brightness')
-        ax.set_title('Brightness over Time')
+        ax2.set_ylabel('Frequency (Hz)', color='red', fontsize=FONTSIZE)
+        ax2.tick_params(axis='y', labelcolor='red', labelsize=FONTSIZE)
+        ax.set_xlabel('Time (s)', fontsize=FONTSIZE)
+        ax.set_ylabel('Brightness', fontsize=FONTSIZE)
+        ax.set_title('Brightness over Time', fontsize=FONTSIZE)
+        ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
         ax.grid(True, alpha=0.3)
         self.spectral_canvas.fig.tight_layout()
         self.spectral_canvas.draw()
@@ -88,9 +92,10 @@ class AudioFeatureExtractor():
         frames = range(len(zcr))
         t = librosa.frames_to_time(frames, sr=sr)
         ax.plot(t, zcr, color='green', linewidth=2)
-        ax.set_xlabel('Time (s)')
-        ax.set_ylabel('Percussion')
-        ax.set_title('Percussion over Time')
+        ax.set_xlabel('Time (s)', fontsize=FONTSIZE)
+        ax.set_ylabel('Percussion', fontsize=FONTSIZE)
+        ax.set_title('Percussion over Time', fontsize=FONTSIZE)
+        ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
         ax.grid(True, alpha=0.3)
         self.zcr_canvas.fig.tight_layout()
         self.zcr_canvas.draw()
