@@ -80,6 +80,7 @@ class AudioVisualizer(QMainWindow):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_visualization)
     
+
     def connect_signals(self):
         """Connect UI signals to slots"""
         self.startButton.clicked.connect(self.toggle_audio)
@@ -90,13 +91,14 @@ class AudioVisualizer(QMainWindow):
         self.liveInputButton.clicked.connect(self.switch_to_live_viz)
 
     def on_viz_change(self, viz_type):
-        """Handle visualization type change"""
-        pass
-        if viz_type == "Audio Stream":
+         """Handle visualization type change"""
+         pass
+         if viz_type == "Audio Stream":
             self.switch_to_matplotlib()
-        else:
+         else:
             self.switch_from_matplotlib()
             self.viz_manager.setup(viz_type)
+
 
     def load_audio(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.mp3 *.flac *.ogg *.m4a);;All Files (*)")

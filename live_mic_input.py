@@ -13,14 +13,6 @@ def record_mic_input(duration, fs):
 def plot_signal(signal):
     plt.rcParams.update({'font.size': 20})
     plt.figure(figsize=(12, 6))
-    # design element implementation 
-    x = np.arange(len(signal))
-    colors = (signal.flatten() - signal.min()) / (signal.max() - signal.min())
-    
-    #making a more colorful gradient with faint lines behind 
-    plt.scatter(x, signal, c=colors, cmap='plasma', s=1)  # colorful gradient
-    plt.plot(signal, alpha=0.3, color="black")  # faint line behind points
-    
     
     plt.title("Signal Visualization")
     plt.xlabel("Sample Index")

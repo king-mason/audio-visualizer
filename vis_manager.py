@@ -50,11 +50,14 @@ class VisualizationManager:
         self.plot_widget.setXRange(0, self.chunk_size // 2)
     
     def _setup_waveform(self):
-        self.visualizations['waveform'] = self.plot_widget.plot(
-            pen=pg.mkPen('#00ff88', width=2)
+        # ROSE CHANGE - DEC 2, 2025 
+        """Setup simple color-changing waveform."""
+        self.wave_curve = self.plot_widget.plot(
+            pen=pg.mkPen('#00ffaa', width=5)
         )
-        self.plot_widget.setYRange(-1, 1)
-        self.plot_widget.setXRange(0, self.chunk_size)
+        self.smoothed = None
+        
+        #ROSE CHANGE END - DEC 2, 2025 
     
     def _setup_spectrum_line(self):
         self.visualizations['spectrum'] = self.plot_widget.plot(
@@ -115,6 +118,7 @@ class VisualizationManager:
         
         if self.current_viz in update_methods:
             update_methods[self.current_viz](data)
+            
     
     def _compute_fft(self, data): # delete?
         """Compute FFT with Hamming window"""
@@ -137,7 +141,27 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-        self.visualizations['waveform'].setData(data)
+    #ROSE CHANGE - DEC 2, 2025
+        """Changing waveform with colors"""
+    # amplitude calculation 
+        amplitude = np.sqrt(np.mean(y**2))
+    # animation 
+        if self.smoothed is None:
+            self.smoothed = data
+        else:
+            self.smoothed = 0.8 * self.smoothed + 0.2 * data
+        y = self.smoothed
+    # color change 
+        if amplitude < 0.0025:
+            c = (0, 180, 255)     
+        elif amplitude < 0.010:
+            c = (0, 255, 150)     
+        else:
+            c = (255, 50, 180)   
+        self.wave_curve.setPen(pg.mkPen(c, width=5))
+        self.wave_curve.setData(y)
+        
+    #ROSE CHANGE - DEC 2, 2025 
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
