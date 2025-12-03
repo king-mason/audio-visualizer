@@ -56,6 +56,7 @@ class VisualizationManager:
             pen=pg.mkPen('#00ffaa', width=5)
         )
         self.smoothed = None
+        self.plot_widget.setYRange(-1, 1)
         
         #ROSE CHANGE END - DEC 2, 2025 
     
@@ -141,17 +142,17 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-    #ROSE CHANGE - DEC 2, 2025
+        #ROSE CHANGE - DEC 2, 2025
         """Changing waveform with colors"""
-    # amplitude calculation 
-        amplitude = np.sqrt(np.mean(y**2))
-    # animation 
+        # animation 
         if self.smoothed is None:
             self.smoothed = data
         else:
             self.smoothed = 0.8 * self.smoothed + 0.2 * data
         y = self.smoothed
-    # color change 
+        # amplitude calculation 
+        amplitude = np.sqrt(np.mean(y**2))
+        # color change 
         if amplitude < 0.0025:
             c = (0, 180, 255)     
         elif amplitude < 0.010:
@@ -160,8 +161,7 @@ class VisualizationManager:
             c = (255, 50, 180)   
         self.wave_curve.setPen(pg.mkPen(c, width=5))
         self.wave_curve.setData(y)
-        
-    #ROSE CHANGE - DEC 2, 2025 
+        #ROSE CHANGE - DEC 2, 2025 
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
