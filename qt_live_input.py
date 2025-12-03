@@ -72,7 +72,7 @@ class AudioVisualizer(QMainWindow):
         
         self.setup_plot_widget()
         self.viz_manager = VisualizationManager(self.plot_widget, self.extractor, CHUNK)
-        self.viz_manager.setup("Frequency Bars")
+        self.viz_manager.setup("Waveform")
 
         self.liveInputButton.hide()
         
@@ -149,12 +149,14 @@ class AudioVisualizer(QMainWindow):
         if self.current_plot_mode == 'live':
             self.vizCombo.setCurrentText("Audio Stream")
             self.liveInputButton.show()
+            self.startButton.hide()
             self.current_plot_mode = 'file'
 
     def switch_to_live_viz(self):
         """Switch plot area to show live visualizations"""
         if self.current_plot_mode == 'file':
             self.liveInputButton.hide()
+            self.startButton.show()
             self.current_plot_mode = 'live'
             self.loadLabel.setText('Live input mode')
     
