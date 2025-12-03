@@ -1,10 +1,14 @@
 import sys
 import numpy as np
 import sounddevice as sd
+
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QWidget, QVBoxLayout
 from PyQt6.QtCore import QTimer, QFile, QTextStream
 from PyQt6.uic.load_ui import loadUi
 import pyqtgraph as pg
+
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 from file_input import AudioFeatureExtractor
 from vis_manager import VisualizationManager
@@ -15,9 +19,10 @@ from vis_manager import VisualizationManager
 #     - file play
 #     - polishing
 # 2. update audio sensitivity
+# 3. put max time window for audio stream
 
 # Audio configuration
-FS = 44100
+SR = 44100
 CHUNK = 2048
 UPDATE_INTERVAL = 20
 
@@ -25,7 +30,7 @@ UPDATE_INTERVAL = 20
 class AudioStream:
     """Manages audio input stream"""
     
-    def __init__(self, callback, sample_rate=FS, chunk_size=CHUNK):
+    def __init__(self, callback, sample_rate=SR, chunk_size=CHUNK):
         self.callback = callback
         self.sample_rate = sample_rate
         self.chunk_size = chunk_size
@@ -63,10 +68,10 @@ class AudioVisualizer(QMainWindow):
         self.data = np.zeros(CHUNK)
         self.sensitivity = 1.0
 
-        self.extractor = AudioFeatureExtractor(self.loadLabel)
+        self.extractor = AudioFeatureExtractor(loadLabel=self.loadLabel)
         
         self.setup_plot_widget()
-        self.viz_manager = VisualizationManager(self.plot_widget, CHUNK)
+        self.viz_manager = VisualizationManager(self.plot_widget, self.extractor, CHUNK)
         self.viz_manager.setup("Frequency Bars")
 
         self.liveInputButton.hide()
@@ -88,20 +93,6 @@ class AudioVisualizer(QMainWindow):
         self.axesButton.clicked.connect(self.toggle_axes)
         self.loadButton.clicked.connect(self.load_audio)
         self.liveInputButton.clicked.connect(self.switch_to_live_viz)
-
-    def on_viz_change(self, viz_type):
-        """Handle visualization type change"""
-        pass
-        if viz_type == "Audio Stream":
-            self.switch_to_matplotlib()
-        else:
-            self.switch_from_matplotlib()
-            self.viz_manager.setup(viz_type)
-
-    def load_audio(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.mp3 *.flac *.ogg *.m4a);;All Files (*)")
-        self.extractor.load_audio(filename)
-        self.switch_to_file_viz()
 
     def setup_plot_widget(self):
         """Setup pyqtgraph plot widget"""
@@ -129,6 +120,15 @@ class AudioVisualizer(QMainWindow):
         
         self.current_plot_mode = 'live'
     
+    def on_viz_change(self, viz_type):
+        """Handle visualization type change"""
+        print('switching to', viz_type)
+        if viz_type == "Audio Stream":
+            self.switch_to_matplotlib()
+        else:
+            self.switch_from_matplotlib()
+        self.viz_manager.setup(viz_type)
+    
     def switch_to_matplotlib(self):
         self.plotLayout.replaceWidget(self.plot_widget, self.file_viz_widget)
         self.plot_widget.hide()
@@ -138,6 +138,11 @@ class AudioVisualizer(QMainWindow):
         self.plotLayout.replaceWidget(self.file_viz_widget, self.plot_widget)
         self.file_viz_widget.hide()
         self.plot_widget.show()
+
+    def load_audio(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.mp3 *.flac *.ogg *.m4a);;All Files (*)")
+        self.extractor.load_audio(filename)
+        self.switch_to_file_viz()
 
     def switch_to_file_viz(self):
         """Switch plot area to show file visualizations"""
@@ -173,7 +178,7 @@ class AudioVisualizer(QMainWindow):
         """Start audio capture"""
         self.audio_stream.start()
         self.timer.start(UPDATE_INTERVAL)
-        self.startButton.setText("⏸ STOP")
+        self.startButton.setText("⏸ STOP") 
         self.startButton.setProperty("isActive", "true")
         self.startButton.style().unpolish(self.startButton) # refresh
         self.startButton.style().polish(self.startButton)

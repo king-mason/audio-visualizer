@@ -12,8 +12,9 @@ class MplCanvas(FigureCanvas):
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
     
-    def __init__(self, plot_widget, chunk_size):
+    def __init__(self, plot_widget, extractor, chunk_size):
         self.plot_widget = plot_widget
+        self.extractor = extractor
         self.chunk_size = chunk_size
         self.visualizations = {}
         self.current_viz = None
@@ -89,18 +90,9 @@ class VisualizationManager:
         self.plot_widget.setXRange(0, self.chunk_size // 4)
     
     def _setup_audio_stream(self):
-        # self.visualizations['waveform'] = self.plot_widget.plot(
-        #     pen=pg.mkPen('#00ff88', width=2)
-        # )
-        # self.plot_widget.setYRange(-1, 1)
-        # self.plot_widget.setXRange(0, self.chunk_size)
-        self.visualizations['stream'] = None
-        self.waveform_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.waveform_canvas)
-        self.spectral_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.spectral_canvas)
-        self.zcr_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.zcr_canvas)
+        self.extractor.reset_audio_data()
+        self.extractor.extract_and_visualize()
+
     
     def update(self, data):
         """Update visualization with new audio data"""
@@ -124,7 +116,7 @@ class VisualizationManager:
     def _create_spectrum(self, data, max_values):
         windowed = data * np.hamming(len(data))
         fft = np.fft.rfft(windowed)
-        spectrum = np.abs(fft[:max_values]) / self.chunk_size
+        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size
         return np.clip(spectrum, 0, 1)
     
     def _update_freq_bars(self, data):
@@ -161,5 +153,7 @@ class VisualizationManager:
         self.visualizations['stereo_bottom'].setOpts(height=-spectrum)
     
     def _update_audio_stream(self, data):
-        print(data)
+        # print(data)
+        self.extractor.update_audio_data(data)
+        self.extractor.extract_and_visualize()
         # self.visualizations['waveform'].setData(data)
