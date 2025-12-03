@@ -4,16 +4,13 @@ import pyqtgraph as pg
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=8, height=4, dpi=100):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        super(MplCanvas, self).__init__(self.fig)
 
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
     
-    def __init__(self, plot_widget, chunk_size):
+    def __init__(self, plot_widget, extractor, chunk_size):
         self.plot_widget = plot_widget
+        self.extractor = extractor
         self.chunk_size = chunk_size
         self.visualizations = {}
         self.current_viz = None
@@ -93,18 +90,9 @@ class VisualizationManager:
         self.plot_widget.setXRange(0, self.chunk_size // 4)
     
     def _setup_audio_stream(self):
-        # self.visualizations['waveform'] = self.plot_widget.plot(
-        #     pen=pg.mkPen('#00ff88', width=2)
-        # )
-        # self.plot_widget.setYRange(-1, 1)
-        # self.plot_widget.setXRange(0, self.chunk_size)
-        self.visualizations['stream'] = None
-        self.waveform_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.waveform_canvas)
-        self.spectral_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.spectral_canvas)
-        self.zcr_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.zcr_canvas)
+        self.extractor.reset_audio_data()
+        self.extractor.extract_and_visualize()
+
     
     def update(self, data):
         """Update visualization with new audio data"""
@@ -119,17 +107,11 @@ class VisualizationManager:
         
         if self.current_viz in update_methods:
             update_methods[self.current_viz](data)
-            
-    
-    def _compute_fft(self, data): # delete?
-        """Compute FFT with Hamming window"""
-        windowed = data * np.hamming(len(data))
-        return np.fft.rfft(windowed)
     
     def _create_spectrum(self, data, max_values):
         windowed = data * np.hamming(len(data))
         fft = np.fft.rfft(windowed)
-        spectrum = np.abs(fft[:max_values]) / self.chunk_size
+        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size # amplify fft height
         return np.clip(spectrum, 0, 1)
     
     def _update_freq_bars(self, data):
@@ -179,11 +161,15 @@ class VisualizationManager:
         self.visualizations['circular'].setData(x, y)
     
     def _update_stereo_bars(self, data):
-        spectrum = self._create_spectrum(data, self.chunk_size // 4)
+        spectrum = self._create_spectrum(data, self.chunk_size // 8)
         
-        self.visualizations['stereo_top'].setOpts(height=spectrum)
-        self.visualizations['stereo_bottom'].setOpts(height=-spectrum)
+        mirrored = np.append(spectrum[::-1], spectrum)
+
+        self.visualizations['stereo_top'].setOpts(height=mirrored)
+        self.visualizations['stereo_bottom'].setOpts(height=-mirrored)
     
     def _update_audio_stream(self, data):
-        print(data)
+        # print(data)
+        self.extractor.update_audio_data(data)
+        self.extractor.extract_and_visualize()
         # self.visualizations['waveform'].setData(data)
