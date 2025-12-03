@@ -203,7 +203,7 @@ class AudioVisualizer(QMainWindow):
     
     def update_visualization(self):
         """Update visualization with latest audio data"""
-        self.viz_manager.update(self.data * self.sensitivity)
+        self.viz_manager.update(self.data)
     
     def closeEvent(self, event):
         """Clean up on close"""

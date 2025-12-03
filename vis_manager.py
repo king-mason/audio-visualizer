@@ -4,10 +4,6 @@ import pyqtgraph as pg
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=8, height=4, dpi=100):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        super(MplCanvas, self).__init__(self.fig)
 
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
@@ -108,15 +104,10 @@ class VisualizationManager:
         if self.current_viz in update_methods:
             update_methods[self.current_viz](data)
     
-    def _compute_fft(self, data): # delete?
-        """Compute FFT with Hamming window"""
-        windowed = data * np.hamming(len(data))
-        return np.fft.rfft(windowed)
-    
     def _create_spectrum(self, data, max_values):
         windowed = data * np.hamming(len(data))
         fft = np.fft.rfft(windowed)
-        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size
+        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size # amplify fft height
         return np.clip(spectrum, 0, 1)
     
     def _update_freq_bars(self, data):
@@ -147,10 +138,12 @@ class VisualizationManager:
         self.visualizations['circular'].setData(x, y)
     
     def _update_stereo_bars(self, data):
-        spectrum = self._create_spectrum(data, self.chunk_size // 4)
+        spectrum = self._create_spectrum(data, self.chunk_size // 8)
         
-        self.visualizations['stereo_top'].setOpts(height=spectrum)
-        self.visualizations['stereo_bottom'].setOpts(height=-spectrum)
+        mirrored = np.append(spectrum[::-1], spectrum)
+
+        self.visualizations['stereo_top'].setOpts(height=mirrored)
+        self.visualizations['stereo_bottom'].setOpts(height=-mirrored)
     
     def _update_audio_stream(self, data):
         # print(data)
