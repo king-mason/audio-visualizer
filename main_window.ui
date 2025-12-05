@@ -202,12 +202,12 @@ padding: 10px;</string>
            </property>
            <item>
             <property name="text">
-             <string>Frequency Bars</string>
+             <string>Waveform</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Waveform</string>
+             <string>Frequency Bars</string>
             </property>
            </item>
            <item>

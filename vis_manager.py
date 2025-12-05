@@ -4,15 +4,13 @@ import pyqtgraph as pg
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=8, height=4, dpi=100):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        super(MplCanvas, self).__init__(self.fig)
 
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
-    def __init__(self, plot_widget, chunk_size):
+    
+    def __init__(self, plot_widget, extractor, chunk_size):
         self.plot_widget = plot_widget
+        self.extractor = extractor
         self.chunk_size = chunk_size
         self.visualizations = {}
         self.current_viz = None
@@ -58,6 +56,7 @@ class VisualizationManager:
             pen=pg.mkPen('#ff4fa3', width=7)
         )
         self.smoothed = None
+        self.plot_widget.setYRange(-1, 1)
         
        
     
@@ -94,18 +93,9 @@ class VisualizationManager:
         self.plot_widget.setXRange(0, self.chunk_size // 4)
     
     def _setup_audio_stream(self):
-        # self.visualizations['waveform'] = self.plot_widget.plot(
-        #     pen=pg.mkPen('#00ff88', width=2)
-        # )
-        # self.plot_widget.setYRange(-1, 1)
-        # self.plot_widget.setXRange(0, self.chunk_size)
-        self.visualizations['stream'] = None
-        self.waveform_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.waveform_canvas)
-        self.spectral_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.spectral_canvas)
-        self.zcr_canvas = MplCanvas(self, width=8, height=2)
-        self.plot_widget.addWidget(self.zcr_canvas)
+        self.extractor.reset_audio_data()
+        self.extractor.extract_and_visualize()
+
     
     def update(self, data):
         """Update visualization with new audio data"""
@@ -120,17 +110,11 @@ class VisualizationManager:
         
         if self.current_viz in update_methods:
             update_methods[self.current_viz](data)
-            
-    
-    def _compute_fft(self, data): # delete?
-        """Compute FFT with Hamming window"""
-        windowed = data * np.hamming(len(data))
-        return np.fft.rfft(windowed)
     
     def _create_spectrum(self, data, max_values):
         windowed = data * np.hamming(len(data))
         fft = np.fft.rfft(windowed)
-        spectrum = np.abs(fft[:max_values]) / self.chunk_size
+        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size # amplify fft height
         return np.clip(spectrum, 0, 1)
     
     def _update_freq_bars(self, data):
@@ -143,23 +127,17 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-    #
+        #ROSE CHANGE - DEC 2, 2025
         """Changing waveform with colors"""
-    # calculate the amplitude (loudness) - using RMS (root mean square) approach 
-        amp = np.sqrt(np.mean(y**2))
-    
-    # make edits to the animation - create a smooth version of the live audio 
-    # Employing the principal of exponential moving average here - keeping 80% 
-    # of the previous signal and 20% of the new signal to allow for optimal 
-    # smoothness 
+        # animation 
         if self.smoothed is None:
             self.smoothed = data
         else:
             self.smoothed = 0.2 * data + 0.8 * self.smoothed  
         y = self.smoothed
-    
-    # change color of the live wave form based on the strength of the sound 
-    # quiet sounds -> orange 
+        # amplitude calculation 
+        amplitude = np.sqrt(np.mean(y**2))
+        # color change 
         if amplitude < 0.0025:
             w = (255, 160, 70)       
     # medium sounds -> pink 
@@ -172,7 +150,7 @@ class VisualizationManager:
     # specify the pen width of the corresponding waveform 
         self.wave_curve.setPen(pg.mkPen(w, width=7))
         self.wave_curve.setData(y)
-        
+        #ROSE CHANGE - DEC 2, 2025 
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
@@ -191,11 +169,15 @@ class VisualizationManager:
         self.visualizations['circular'].setData(x, y)
     
     def _update_stereo_bars(self, data):
-        spectrum = self._create_spectrum(data, self.chunk_size // 4)
+        spectrum = self._create_spectrum(data, self.chunk_size // 8)
         
-        self.visualizations['stereo_top'].setOpts(height=spectrum)
-        self.visualizations['stereo_bottom'].setOpts(height=-spectrum)
+        mirrored = np.append(spectrum[::-1], spectrum)
+
+        self.visualizations['stereo_top'].setOpts(height=mirrored)
+        self.visualizations['stereo_bottom'].setOpts(height=-mirrored)
     
     def _update_audio_stream(self, data):
-        print(data)
+        # print(data)
+        self.extractor.update_audio_data(data)
+        self.extractor.extract_and_visualize()
         # self.visualizations['waveform'].setData(data)
