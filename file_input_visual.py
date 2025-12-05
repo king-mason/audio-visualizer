@@ -1,7 +1,10 @@
 import sys
 import librosa
-#import librosa.display
+#import librosa.display - used to load audio files 
+#import numpy is used to perform numerical operations 
 import numpy as np
+
+#import PyQt Widgets 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
                               QWidget, QPushButton, QFileDialog, QLabel, QGroupBox)
 from PyQt6.QtCore import Qt
@@ -10,6 +13,8 @@ matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+#declaration of the MplCanvas class 
+# create a figure with width and height. 
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=8, height=4, dpi=100):
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -23,6 +28,8 @@ class AudioFeatureExtractor(QMainWindow):
         self.filename = None
         self.init_ui()
 
+#input audio file, load file. Create a button and messsage label. Display no file 
+# loaded if none specificed 
     def init_ui(self):
         # qt canvas
         self.setWindowTitle('Audio File Input')
@@ -53,6 +60,7 @@ class AudioFeatureExtractor(QMainWindow):
 
         self.show()
 
+#allows user to pick desired file, update the label 
     def load_audio(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.mp3 *.flac *.ogg *.m4a);;All Files (*)")
         if filename:
@@ -62,10 +70,12 @@ class AudioFeatureExtractor(QMainWindow):
                 QApplication.processEvents()  # update
                 self.audio_data, self.sample_rate = librosa.load(filename, sr=None)
                 self.file_label.setText(f'Loaded: {filename.split("/")[-1]} (SR: {self.sample_rate} Hz)')
+                #plot the indicated waveform for the file 
                 self.extract_and_visualize()
             except Exception as e:
                 self.file_label.setText(f'Error: {str(e)}')
 
+    # calculate the volume, centroid, and zero crossing rate of the waveform 
     def extract_and_visualize(self):
         if self.audio_data is None:
             return
@@ -80,6 +90,7 @@ class AudioFeatureExtractor(QMainWindow):
         zcr = librosa.feature.zero_crossing_rate(y)[0]
         self.plot_zcr(zcr, sr)
 
+    # blue waveform plot (Volume over time)
     def plot_waveform(self, y, sr):
         self.waveform_canvas.fig.clear()
         ax = self.waveform_canvas.fig.add_subplot(111)
@@ -92,6 +103,7 @@ class AudioFeatureExtractor(QMainWindow):
         self.waveform_canvas.fig.tight_layout()
         self.waveform_canvas.draw()
 
+    # red plot (Brightness over time) 
     def plot_spectral_centroid(self, spectral_centroids, sr):
         self.spectral_canvas.fig.clear()
         ax = self.spectral_canvas.fig.add_subplot(111)
@@ -108,6 +120,7 @@ class AudioFeatureExtractor(QMainWindow):
         self.spectral_canvas.fig.tight_layout()
         self.spectral_canvas.draw()
 
+    # green plot (Zero Crossing Rate Over Time) - dictates changes in percussion
     def plot_zcr(self, zcr, sr):
         self.zcr_canvas.fig.clear()
         ax = self.zcr_canvas.fig.add_subplot(111)
@@ -121,6 +134,7 @@ class AudioFeatureExtractor(QMainWindow):
         self.zcr_canvas.fig.tight_layout()
         self.zcr_canvas.draw()
 
+#create the QApplication, create main window 
 def main():
     app = QApplication(sys.argv)
     window = AudioFeatureExtractor()

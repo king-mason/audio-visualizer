@@ -11,7 +11,6 @@ class MplCanvas(FigureCanvas):
 
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
-    
     def __init__(self, plot_widget, chunk_size):
         self.plot_widget = plot_widget
         self.chunk_size = chunk_size
@@ -49,15 +48,18 @@ class VisualizationManager:
         self.plot_widget.setYRange(0, 1)
         self.plot_widget.setXRange(0, self.chunk_size // 2)
     
+    
     def _setup_waveform(self):
-        # ROSE CHANGE - DEC 2, 2025 
-        """Setup simple color-changing waveform."""
+    # create the initial waveform - this function creates the waveform 
+    # prior to the live audio 
+
         self.wave_curve = self.plot_widget.plot(
-            pen=pg.mkPen('#00ffaa', width=5)
+            # the width of the waveform is 7, the initial color is pink 
+            pen=pg.mkPen('#ff4fa3', width=7)
         )
         self.smoothed = None
         
-        #ROSE CHANGE END - DEC 2, 2025 
+       
     
     def _setup_spectrum_line(self):
         self.visualizations['spectrum'] = self.plot_widget.plot(
@@ -141,32 +143,42 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-    #ROSE CHANGE - DEC 2, 2025
+    #
         """Changing waveform with colors"""
-    # amplitude calculation 
-        amplitude = np.sqrt(np.mean(y**2))
-    # animation 
+    # calculate the amplitude (loudness) - using RMS (root mean square) approach 
+        amp = np.sqrt(np.mean(y**2))
+    
+    # make edits to the animation - create a smooth version of the live audio 
+    # Employing the principal of exponential moving average here - keeping 80% 
+    # of the previous signal and 20% of the new signal to allow for optimal 
+    # smoothness 
         if self.smoothed is None:
             self.smoothed = data
         else:
-            self.smoothed = 0.8 * self.smoothed + 0.2 * data
+            self.smoothed = 0.2 * data + 0.8 * self.smoothed  
         y = self.smoothed
-    # color change 
+    
+    # change color of the live wave form based on the strength of the sound 
+    # quiet sounds -> orange 
         if amplitude < 0.0025:
-            c = (0, 180, 255)     
+            w = (255, 160, 70)       
+    # medium sounds -> pink 
         elif amplitude < 0.010:
-            c = (0, 255, 150)     
+            w = (255, 60, 180)       
+    # loud sounds -> purple 
         else:
-            c = (255, 50, 180)   
-        self.wave_curve.setPen(pg.mkPen(c, width=5))
+            w = (180, 70, 255)       
+
+    # specify the pen width of the corresponding waveform 
+        self.wave_curve.setPen(pg.mkPen(w, width=7))
         self.wave_curve.setData(y)
         
-    #ROSE CHANGE - DEC 2, 2025 
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
         self.visualizations['spectrum'].setData(spectrum)
     
+    # circular waveform specifications 
     def _update_circular(self, data):
         spectrum = self._create_spectrum(data, 180)
         
