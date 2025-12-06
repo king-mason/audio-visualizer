@@ -127,7 +127,6 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-        #ROSE CHANGE - DEC 2, 2025
         """Changing waveform with colors"""
         # animation 
         if self.smoothed is None:
@@ -150,7 +149,7 @@ class VisualizationManager:
     # specify the pen width of the corresponding waveform 
         self.wave_curve.setPen(pg.mkPen(w, width=7))
         self.wave_curve.setData(y)
-        #ROSE CHANGE - DEC 2, 2025 
+        
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
