@@ -1,9 +1,8 @@
 import numpy as np
 import pyqtgraph as pg
 
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 
+K = 80  # constant spectrum multiplier
 
 class VisualizationManager:
     """Manages different visualization types and their rendering"""
@@ -111,7 +110,7 @@ class VisualizationManager:
     def _create_spectrum(self, data, max_values):
         windowed = data * np.hamming(len(data))
         fft = np.fft.rfft(windowed)
-        spectrum = np.abs(fft[:max_values]) * 100 / self.chunk_size # amplify fft height
+        spectrum = np.abs(fft[:max_values]) * K / self.chunk_size # amplify fft height
         return np.clip(spectrum, 0, 1)
     
     def _update_freq_bars(self, data):

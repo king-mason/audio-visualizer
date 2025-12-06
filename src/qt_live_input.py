@@ -1,27 +1,22 @@
-import sys
 import numpy as np
 import sounddevice as sd
 
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QWidget, QVBoxLayout
-from PyQt6.QtCore import QTimer, QFile, QTextStream
+from PyQt6.QtWidgets import (QMainWindow, QPushButton, QFileDialog, QWidget, 
+                             QVBoxLayout, QSlider, QComboBox, QLabel)
+from PyQt6.QtCore import QTimer
 from PyQt6.uic.load_ui import loadUi
 import pyqtgraph as pg
-
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 from file_input import AudioFeatureExtractor
 from vis_manager import VisualizationManager
 
 
-# TODO:
-# 1. final functionality work
-#     - file play
-#     - polishing
-# 2. update audio sensitivity
-# 3. put max time window for audio stream
+# TODO
+# - Add more user controls
+# - Make Matplotlib animation effient or switch to Qt plot
+# - Add recording ability
 
-# Audio configuration
+# Audio input configuration
 SR = 44100
 CHUNK = 2048
 UPDATE_INTERVAL = 20
@@ -60,6 +55,18 @@ class AudioStream:
 
 class AudioVisualizer(QMainWindow):
     """Main application window"""
+
+    # UI attributes loaded dynamically
+    plotWidget: QWidget
+    plotLayout: QVBoxLayout
+    loadLabel: QLabel
+    liveInputButton: QPushButton
+    startButton: QPushButton
+    vizCombo: QComboBox
+    sensitivitySlider: QSlider
+    sensValueLabel: QLabel
+    axesButton: QPushButton
+    loadButton: QPushButton
     
     def __init__(self):
         super().__init__()
@@ -212,13 +219,3 @@ class AudioVisualizer(QMainWindow):
         self.stop_audio()
         event.accept()
 
-
-def main():
-    app = QApplication(sys.argv)
-    window = AudioVisualizer()
-    window.show()
-    sys.exit(app.exec())
-
-
-if __name__ == '__main__':
-    main()
