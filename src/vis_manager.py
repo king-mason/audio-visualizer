@@ -45,16 +45,19 @@ class VisualizationManager:
         self.plot_widget.setYRange(0, 1)
         self.plot_widget.setXRange(0, self.chunk_size // 2)
     
+    
     def _setup_waveform(self):
-        # ROSE CHANGE - DEC 2, 2025 
-        """Setup simple color-changing waveform."""
+    # create the initial waveform - this function creates the waveform 
+    # prior to the live audio 
+
         self.wave_curve = self.plot_widget.plot(
-            pen=pg.mkPen('#00ffaa', width=5)
+            # the width of the waveform is 7, the initial color is pink 
+            pen=pg.mkPen('#ff4fa3', width=7)
         )
         self.smoothed = None
         self.plot_widget.setYRange(-1, 1)
         
-        #ROSE CHANGE END - DEC 2, 2025 
+       
     
     def _setup_spectrum_line(self):
         self.visualizations['spectrum'] = self.plot_widget.plot(
@@ -123,31 +126,35 @@ class VisualizationManager:
         bars.setOpts(height=spectrum)
     
     def _update_waveform(self, data):
-        #ROSE CHANGE - DEC 2, 2025
         """Changing waveform with colors"""
         # animation 
         if self.smoothed is None:
             self.smoothed = data
         else:
-            self.smoothed = 0.8 * self.smoothed + 0.2 * data
+            self.smoothed = 0.2 * data + 0.8 * self.smoothed  
         y = self.smoothed
         # amplitude calculation 
         amplitude = np.sqrt(np.mean(y**2))
         # color change 
         if amplitude < 0.0025:
-            c = (0, 180, 255)     
+            w = (255, 160, 70)       
+    # medium sounds -> pink 
         elif amplitude < 0.010:
-            c = (0, 255, 150)     
+            w = (255, 60, 180)       
+    # loud sounds -> purple 
         else:
-            c = (255, 50, 180)   
-        self.wave_curve.setPen(pg.mkPen(c, width=5))
+            w = (180, 70, 255)       
+
+    # specify the pen width of the corresponding waveform 
+        self.wave_curve.setPen(pg.mkPen(w, width=7))
         self.wave_curve.setData(y)
-        #ROSE CHANGE - DEC 2, 2025 
+        
     
     def _update_spectrum_line(self, data):
         spectrum = self._create_spectrum(data, self.chunk_size // 2)
         self.visualizations['spectrum'].setData(spectrum)
     
+    # circular waveform specifications 
     def _update_circular(self, data):
         spectrum = self._create_spectrum(data, 180)
         
